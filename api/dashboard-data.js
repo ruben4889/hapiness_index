@@ -4,12 +4,14 @@ const { Pool } = require('pg');
 
 // Configuración de la base de datos desde variables de entorno
 const pool = new Pool({
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
+    host: process.env.DB_HOST,       // host de tu Azure Postgres
+    database: process.env.DB_NAME,   // nombre de la base de datos
+    user: process.env.DB_USER,       // usuario
+    password: process.env.DB_PASSWORD, // contraseña
     port: process.env.DB_PORT || 5432,
-    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
+    ssl: {
+        rejectUnauthorized: false    // necesario si Azure usa certificado auto-firmado
+    }
 });
 
 module.exports = async (req, res) => {
