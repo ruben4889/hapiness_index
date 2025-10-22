@@ -16,14 +16,20 @@ const Dashboard = () => {
 
   // Cargar datos desde el servidor
   useEffect(() => {
-    // En producción usa la ruta relativa, en desarrollo usa localhost
-    const apiUrl = import.meta.env.PROD 
-      ? '/api/dashboard-data' 
-      : 'http://localhost:3001/api/dashboard-data';
+    // CORRECCIÓN: Usar ruta relativa que funciona tanto en desarrollo como producción
+    const apiUrl = '/api/dashboard-data';
+    
+    console.log('Fetching data from:', apiUrl);
     
     fetch(apiUrl)
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then(data => {
+        console.log('Data received:', data);
         setPlatformData(data.platformData);
         setScreenTimeImpact(data.screenTimeImpact);
         setSleepImpact(data.sleepImpact);
@@ -33,8 +39,8 @@ const Dashboard = () => {
         setLoading(false);
       })
       .catch(err => {
-        console.error('Error:', err);
-        setError('No se pudo conectar al servidor. Asegúrate de que esté corriendo en http://localhost:3001');
+        console.error('Error fetching data:', err);
+        setError('No se pudo cargar los datos de la base de datos. Error: ' + err.message);
         setLoading(false);
       });
   }, []);
@@ -63,7 +69,7 @@ const Dashboard = () => {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-xl text-gray-700">Cargando datos de la base de datos...</p>
+          <p className="mt-4 text-xl text-gray-700">Cargando datos de Azure PostgreSQL...</p>
         </div>
       </div>
     );
@@ -94,7 +100,7 @@ const Dashboard = () => {
             Social Media & Happiness Analysis
           </h1>
           <p className="text-gray-600">
-            Análisis en tiempo real desde PostgreSQL
+            Datos en tiempo real desde Azure PostgreSQL
           </p>
         </div>
 
@@ -160,19 +166,19 @@ const Dashboard = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-white bg-opacity-10 backdrop-blur p-4 rounded">
                   <h3 className="font-bold mb-2">1. Screen Time is THE Major Factor</h3>
-                  <p className="text-sm">Users with less than 4 hrs/day have 28% higher happiness ({screenTimeImpact[0]?.happiness}) vs 6+ hrs ({screenTimeImpact[2]?.happiness})</p>
+                  <p className="text-sm">Users with less than 4 hrs/day have higher happiness ({screenTimeImpact[0]?.happiness}) vs 6+ hrs ({screenTimeImpact[2]?.happiness})</p>
                 </div>
                 <div className="bg-white bg-opacity-10 backdrop-blur p-4 rounded">
                   <h3 className="font-bold mb-2">2. Sleep Quality Dominates</h3>
-                  <p className="text-sm">Good sleep (7+) correlates with 38% higher happiness compared to poor sleep</p>
+                  <p className="text-sm">Good sleep (7+) correlates with higher happiness compared to poor sleep</p>
                 </div>
                 <div className="bg-white bg-opacity-10 backdrop-blur p-4 rounded">
                   <h3 className="font-bold mb-2">3. Platform Matters</h3>
                   <p className="text-sm">{platformData[0]?.name} users are happier than {platformData[platformData.length - 1]?.name} users</p>
                 </div>
                 <div className="bg-white bg-opacity-10 backdrop-blur p-4 rounded">
-                  <h3 className="font-bold mb-2">4. Connected to Database</h3>
-                  <p className="text-sm">All data comes live from your PostgreSQL database</p>
+                  <h3 className="font-bold mb-2">4. Connected to Azure</h3>
+                  <p className="text-sm">All data comes live from your Azure PostgreSQL database</p>
                 </div>
               </div>
             </div>
@@ -377,13 +383,6 @@ const Dashboard = () => {
                   </div>
                   <div className="w-20 text-right font-bold text-green-600">+0.18</div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="w-48 font-semibold">6. SM Detox Days</div>
-                  <div className="flex-1 bg-gray-200 rounded-full h-6">
-                    <div className="bg-gray-400 h-6 rounded-full" style={{width: '10%'}}></div>
-                  </div>
-                  <div className="w-20 text-right font-bold text-gray-600">+0.05</div>
-                </div>
               </div>
             </div>
 
@@ -456,7 +455,7 @@ const Dashboard = () => {
             <div className="bg-blue-50 border-l-4 border-blue-500 p-6 rounded">
               <h3 className="font-bold text-lg mb-2">📊 Demographic Insights</h3>
               <ul className="space-y-2 text-gray-700">
-                <li>👥 Data loaded directly from your PostgreSQL database</li>
+                <li>👥 Data loaded directly from your Azure PostgreSQL database</li>
                 <li>🔄 Real-time connection to your data source</li>
                 <li>📊 All statistics calculated from actual database records</li>
               </ul>
@@ -468,7 +467,7 @@ const Dashboard = () => {
           <h2 className="text-2xl font-bold text-gray-800 mb-4">📋 Executive Summary</h2>
           <div className="prose max-w-none text-gray-700">
             <p className="mb-4">
-              Based on real-time analysis from your PostgreSQL database, this dashboard identifies the key factors affecting happiness in social media usage:
+              Based on real-time analysis from your Azure PostgreSQL database, this dashboard identifies the key factors affecting happiness in social media usage:
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-red-50 p-4 rounded-lg">
@@ -485,13 +484,13 @@ const Dashboard = () => {
                 <ul className="space-y-1">
                   <li>• Low screen time (less than 4 hrs): Higher happiness</li>
                   <li>• Good sleep (7+): Higher happiness</li>
-                  <li>• Connected to live database</li>
+                  <li>• Connected to Azure database</li>
                   <li>• Real-time data updates</li>
                 </ul>
               </div>
             </div>
             <p className="mt-6 font-semibold text-lg text-blue-800">
-              🎯 Key Takeaway: All data comes directly from your PostgreSQL database in real-time!
+              🎯 Key Takeaway: All data comes directly from your Azure PostgreSQL database in real-time!
             </p>
           </div>
         </div>
