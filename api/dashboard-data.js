@@ -34,7 +34,7 @@ try {
             ROUND(AVG("Daily_Screen_Time(hrs)")::numeric, 2) AS "screenTime",
             ROUND(AVG("Stress_Level(1-10)")::numeric, 2) AS stress,
             ROUND(AVG("Sleep_Quality(1-10)")::numeric, 2) AS sleep
-        FROM social_media
+        FROM social_media.social_media
         GROUP BY social_media_platform
         ORDER BY happiness DESC
     `);
