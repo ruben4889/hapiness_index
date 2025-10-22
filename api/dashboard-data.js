@@ -24,134 +24,135 @@ module.exports = async (req, res) => {
         return;
     }
 
-    try {
-        // Datos por plataforma
-        const platformData = await pool.query(`
-            SELECT 
-                primary_platform as name,
-                ROUND(AVG(happiness_score)::numeric, 2) as happiness,
-                COUNT(*) as users,
-                ROUND(AVG(screen_time_hours)::numeric, 2) as "screenTime",
-                ROUND(AVG(stress_level)::numeric, 2) as stress,
-                ROUND(AVG(sleep_quality)::numeric, 2) as sleep
-            FROM users
-            GROUP BY primary_platform
-            ORDER BY happiness DESC
-        `);
+try {
+    // Datos por plataforma
+    const platformData = await pool.query(`
+        SELECT 
+            social_media_platform AS name,
+            ROUND(AVG("Happiness_Index(1-10)")::numeric, 2) AS happiness,
+            COUNT(*) AS users,
+            ROUND(AVG("Daily_Screen_Time(hrs)")::numeric, 2) AS "screenTime",
+            ROUND(AVG("Stress_Level(1-10)")::numeric, 2) AS stress,
+            ROUND(AVG("Sleep_Quality(1-10)")::numeric, 2) AS sleep
+        FROM social_media
+        GROUP BY social_media_platform
+        ORDER BY happiness DESC
+    `);
 
-        // Impacto del tiempo de pantalla
-        const screenTimeImpact = await pool.query(`
-            SELECT 
-                CASE 
-                    WHEN screen_time_hours < 4 THEN 'Low (< 4 hrs)'
-                    WHEN screen_time_hours BETWEEN 4 AND 6 THEN 'Medium (4-6 hrs)'
-                    ELSE 'High (6+ hrs)'
-                END as category,
-                ROUND(AVG(happiness_score)::numeric, 2) as happiness,
-                COUNT(*) as users,
-                ROUND(AVG(sleep_quality)::numeric, 2) as sleep,
-                ROUND(AVG(stress_level)::numeric, 2) as stress
-            FROM users
-            GROUP BY category
-            ORDER BY 
-                CASE category
-                    WHEN 'Low (< 4 hrs)' THEN 1
-                    WHEN 'Medium (4-6 hrs)' THEN 2
-                    ELSE 3
-                END
-        `);
+    // Impacto del tiempo de pantalla
+    const screenTimeImpact = await pool.query(`
+        SELECT 
+            CASE 
+                WHEN "Daily_Screen_Time(hrs)" < 4 THEN 'Low (< 4 hrs)'
+                WHEN "Daily_Screen_Time(hrs)" BETWEEN 4 AND 6 THEN 'Medium (4-6 hrs)'
+                ELSE 'High (6+ hrs)'
+            END AS category,
+            ROUND(AVG("Happiness_Index(1-10)")::numeric, 2) AS happiness,
+            COUNT(*) AS users,
+            ROUND(AVG("Sleep_Quality(1-10)")::numeric, 2) AS sleep,
+            ROUND(AVG("Stress_Level(1-10)")::numeric, 2) AS stress
+        FROM social_media
+        GROUP BY category
+        ORDER BY 
+            CASE category
+                WHEN 'Low (< 4 hrs)' THEN 1
+                WHEN 'Medium (4-6 hrs)' THEN 2
+                ELSE 3
+            END
+    `);
 
-        // Impacto del sueño
-        const sleepImpact = await pool.query(`
-            SELECT 
-                CASE 
-                    WHEN sleep_quality < 5 THEN 'Poor (< 5)'
-                    WHEN sleep_quality BETWEEN 5 AND 7 THEN 'Fair (5-7)'
-                    ELSE 'Good (7+)'
-                END as category,
-                ROUND(AVG(happiness_score)::numeric, 2) as happiness,
-                COUNT(*) as users,
-                ROUND(AVG(screen_time_hours)::numeric, 2) as "screenTime",
-                ROUND(AVG(stress_level)::numeric, 2) as stress
-            FROM users
-            GROUP BY category
-            ORDER BY 
-                CASE category
-                    WHEN 'Poor (< 5)' THEN 1
-                    WHEN 'Fair (5-7)' THEN 2
-                    ELSE 3
-                END
-        `);
+    // Impacto del sueño
+    const sleepImpact = await pool.query(`
+        SELECT 
+            CASE 
+                WHEN "Sleep_Quality(1-10)" < 5 THEN 'Poor (< 5)'
+                WHEN "Sleep_Quality(1-10)" BETWEEN 5 AND 7 THEN 'Fair (5-7)'
+                ELSE 'Good (7+)'
+            END AS category,
+            ROUND(AVG("Happiness_Index(1-10)")::numeric, 2) AS happiness,
+            COUNT(*) AS users,
+            ROUND(AVG("Daily_Screen_Time(hrs)")::numeric, 2) AS "screenTime",
+            ROUND(AVG("Stress_Level(1-10)")::numeric, 2) AS stress
+        FROM social_media
+        GROUP BY category
+        ORDER BY 
+            CASE category
+                WHEN 'Poor (< 5)' THEN 1
+                WHEN 'Fair (5-7)' THEN 2
+                ELSE 3
+            END
+    `);
 
-        // Grupos de edad
-        const ageGroupData = await pool.query(`
-            SELECT 
-                CASE 
-                    WHEN age BETWEEN 18 AND 24 THEN '18-24'
-                    WHEN age BETWEEN 25 AND 34 THEN '25-34'
-                    WHEN age BETWEEN 35 AND 44 THEN '35-44'
-                    ELSE '45+'
-                END as "group",
-                ROUND(AVG(happiness_score)::numeric, 2) as happiness,
-                COUNT(*) as users,
-                ROUND(AVG(screen_time_hours)::numeric, 2) as "screenTime",
-                ROUND(AVG(stress_level)::numeric, 2) as stress
-            FROM users
-            GROUP BY "group"
-            ORDER BY 
-                CASE "group"
-                    WHEN '18-24' THEN 1
-                    WHEN '25-34' THEN 2
-                    WHEN '35-44' THEN 3
-                    ELSE 4
-                END
-        `);
+    // Grupos de edad
+    const ageGroupData = await pool.query(`
+        SELECT 
+            CASE 
+                WHEN age BETWEEN 18 AND 24 THEN '18-24'
+                WHEN age BETWEEN 25 AND 34 THEN '25-34'
+                WHEN age BETWEEN 35 AND 44 THEN '35-44'
+                ELSE '45+'
+            END AS "group",
+            ROUND(AVG("Happiness_Index(1-10)")::numeric, 2) AS happiness,
+            COUNT(*) AS users,
+            ROUND(AVG("Daily_Screen_Time(hrs)")::numeric, 2) AS "screenTime",
+            ROUND(AVG("Stress_Level(1-10)")::numeric, 2) AS stress
+        FROM social_media
+        GROUP BY "group"
+        ORDER BY 
+            CASE "group"
+                WHEN '18-24' THEN 1
+                WHEN '25-34' THEN 2
+                WHEN '35-44' THEN 3
+                ELSE 4
+            END
+    `);
 
-        // Datos por género
-        const genderData = await pool.query(`
-            SELECT 
-                gender,
-                ROUND(AVG(happiness_score)::numeric, 2) as happiness,
-                COUNT(*) as users,
-                ROUND(AVG(exercise_frequency)::numeric, 2) as exercise
-            FROM users
-            GROUP BY gender
-            ORDER BY happiness DESC
-        `);
+    // Datos por género
+    const genderData = await pool.query(`
+        SELECT 
+            gender,
+            ROUND(AVG("Happiness_Index(1-10)")::numeric, 2) AS happiness,
+            COUNT(*) AS users,
+            ROUND(AVG("Exercise_Frequency(week)")::numeric, 2) AS exercise
+        FROM social_media
+        GROUP BY gender
+        ORDER BY happiness DESC
+    `);
 
-        // Impacto del ejercicio
-        const exerciseImpact = await pool.query(`
-            SELECT 
-                CASE 
-                    WHEN exercise_frequency < 2 THEN 'Low (< 2/week)'
-                    WHEN exercise_frequency BETWEEN 2 AND 4 THEN 'Medium (2-4/week)'
-                    ELSE 'High (4+/week)'
-                END as category,
-                ROUND(AVG(happiness_score)::numeric, 2) as happiness,
-                COUNT(*) as users,
-                ROUND(AVG(stress_level)::numeric, 2) as stress
-            FROM users
-            GROUP BY category
-            ORDER BY 
-                CASE category
-                    WHEN 'Low (< 2/week)' THEN 1
-                    WHEN 'Medium (2-4/week)' THEN 2
-                    ELSE 3
-                END
-        `);
+    // Impacto del ejercicio
+    const exerciseImpact = await pool.query(`
+        SELECT 
+            CASE 
+                WHEN "Exercise_Frequency(week)" < 2 THEN 'Low (< 2/week)'
+                WHEN "Exercise_Frequency(week)" BETWEEN 2 AND 4 THEN 'Medium (2-4/week)'
+                ELSE 'High (4+/week)'
+            END AS category,
+            ROUND(AVG("Happiness_Index(1-10)")::numeric, 2) AS happiness,
+            COUNT(*) AS users,
+            ROUND(AVG("Stress_Level(1-10)")::numeric, 2) AS stress
+        FROM social_media
+        GROUP BY category
+        ORDER BY 
+            CASE category
+                WHEN 'Low (< 2/week)' THEN 1
+                WHEN 'Medium (2-4/week)' THEN 2
+                ELSE 3
+            END
+    `);
 
-        // Enviar respuesta
-        res.status(200).json({
-            platformData: platformData.rows,
-            screenTimeImpact: screenTimeImpact.rows,
-            sleepImpact: sleepImpact.rows,
-            ageGroupData: ageGroupData.rows,
-            genderData: genderData.rows,
-            exerciseImpact: exerciseImpact.rows
-        });
+    // Enviar respuesta
+    res.status(200).json({
+        platformData: platformData.rows,
+        screenTimeImpact: screenTimeImpact.rows,
+        sleepImpact: sleepImpact.rows,
+        ageGroupData: ageGroupData.rows,
+        genderData: genderData.rows,
+        exerciseImpact: exerciseImpact.rows
+    });
 
-    } catch (err) {
-        console.error('Error:', err);
-        res.status(500).json({ error: err.message });
-    }
+} catch (err) {
+    console.error('Error:', err);
+    res.status(500).json({ error: err.message });
+}
+
 };
