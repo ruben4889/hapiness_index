@@ -53,14 +53,9 @@ try {
             COUNT(*) AS users,
             ROUND(AVG("Sleep_Quality(1-10)")::numeric, 2) AS sleep,
             ROUND(AVG("Stress_Level(1-10)")::numeric, 2) AS stress
-        FROM social_media
+        FROM social_media.social_media
         GROUP BY category
-        ORDER BY 
-            CASE category
-                WHEN 'Low (< 4 hrs)' THEN 1
-                WHEN 'Medium (4-6 hrs)' THEN 2
-                ELSE 3
-            END
+       
     `);
 
     // Impacto del sueño
